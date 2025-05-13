@@ -2,8 +2,8 @@ import * as tf from '@tensorflow/tfjs-node'
 import fs from 'fs'
 import path from 'path'
 
-let model: tf.LayersModel | null = null;
-let wordIndex: Record<string, number> = {};
+let model = null;
+let wordIndex = {};
 
 async function loadModelAndTokenizer() {
   if (!model) {
@@ -14,7 +14,7 @@ async function loadModelAndTokenizer() {
   }
 }
 
-function tokenizeText(text: string, maxLen = 500) {
+function tokenizeText(text, maxLen = 500) {
   text = text.toLowerCase().replace(/[^a-z\s]/g, '').split(' ');
   let tokens = text.map(word => wordIndex[word] || 0);
   if (tokens.length > maxLen) tokens = tokens.slice(0, maxLen);
@@ -30,10 +30,10 @@ export default async function handler(req, res) {
   await loadModelAndTokenizer();
   const { text } = req.body;
   const input = tokenizeText(text);
-  const predictionTensor = model!.predict(input);
+  const predictionTensor = model.predict(input);
   const predictionData = Array.isArray(predictionTensor)
     ? await predictionTensor[0].data()
     : await predictionTensor.data();
   const label = predictionData[0] > 0.5 ? 'REAL' : 'FAKE';
-  res.status(200).json({ prediction: label, confidence: prediction[0].toFixed(2) });
+  res.status(200).json({ prediction: label, confidence: predictionData[0].toFixed(2) });
 }
