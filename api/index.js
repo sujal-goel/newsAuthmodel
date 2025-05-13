@@ -1,6 +1,11 @@
 import * as tf from '@tensorflow/tfjs-node'
 import fs from 'fs'
 import path from 'path'
+import express from 'express';
+import bodyParser from 'body-parser';
+
+const app = express();
+app.use(bodyParser.json());
 
 let model = null;
 let wordIndex = {};
@@ -37,3 +42,12 @@ export default async function handler(req, res) {
   const label = predictionData[0] > 0.5 ? 'REAL' : 'FAKE';
   res.status(200).json({ prediction: label, confidence: predictionData[0].toFixed(2) });
 }
+
+// Use the handler for POST requests
+app.post('/predict', handler);
+
+// Use the port from environment variable or default to 3000
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
