@@ -42,7 +42,7 @@ export default async function handler(req, res) {
   const label = predictionData[0] > 0.5 ? 'REAL' : 'FAKE';
   res.status(200).json({ prediction: label, confidence: predictionData[0].toFixed(2) });
 }
-
+app.get("/",(res)=>{res.send("apiRunningSuccessfully")})
 // Use the handler for POST requests
 app.post('/predict', handler);
 
